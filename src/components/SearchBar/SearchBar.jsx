@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   SearchbarHeader,
@@ -10,59 +10,52 @@ import { IconContext } from 'react-icons';
 import { BiSearchAlt2 } from 'react-icons/bi';
 import Notiflix from 'notiflix';
 
-class SearchBar extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
+export default function SearchBar({ onSubmit }) {
+  const [searchInput, setSearchInput] = useState('');
+
+  const handleChange = e => {
+    setSearchInput(e.currentTarget.value.toLowerCase());
   };
 
-  state = {
-    searchInput: '',
-  };
-
-  handleChange = e => {
-    this.setState({ searchInput: e.target.value.toLowerCase() });
-  };
-
-  handleFormSubmit = e => {
+  const handleFormSubmit = e => {
     e.preventDefault();
 
-    if (this.state.searchInput.trim() === '') {
+    if (searchInput.trim() === '') {
       Notiflix.Notify.failure('Please enter a search term!');
       return;
     }
 
-    this.props.onSubmit(this.state.searchInput);
+    onSubmit(searchInput);
+    setSearchInput('');
   };
 
-  render() {
-    return (
-      <SearchbarHeader>
-        <SearchForm onSubmit={this.handleFormSubmit}>
-          <SearchFormInput
-            value={this.state.searchInput}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={this.handleChange}
-          />
+  return (
+    <SearchbarHeader>
+      <SearchForm onSubmit={handleFormSubmit}>
+        <SearchFormInput
+          value={searchInput}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={handleChange}
+        />
 
-          <SearchFormButton type="submit">
-            <IconContext.Provider
-              value={{ style: { verticalAlign: 'middle' } }}
-            >
-              <BiSearchAlt2 size={24} />
-            </IconContext.Provider>
-          </SearchFormButton>
-        </SearchForm>
-      </SearchbarHeader>
-    );
-  }
+        <SearchFormButton type="submit">
+          <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
+            <BiSearchAlt2 size={24} />
+          </IconContext.Provider>
+        </SearchFormButton>
+      </SearchForm>
+    </SearchbarHeader>
+  );
 }
-
-export default SearchBar;
 
 Notiflix.Notify.init({
   distance: '10px',
   timeout: 1500,
 });
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
